@@ -29,31 +29,28 @@ let state = STATE.STARTUP;
 //assets
 let mouthOpenImg, mouthMidImg, mouthClosedImg;
 let eyeLeftImg, eyeRightImg;
+let noseImg;
 // Our data for displaying the features and locating the correct
 // Facemesh data. We're using both a left and right point so we can
 // position features in the centerpoint
 let face = [
     {
         name: `left eye`,
-        emoji: `👁️`,
         leftDataIndex: 33,
         rightDataIndex: 133,
     },
     {
         name: `right eye`,
-        emoji: `👁️`,
         leftDataIndex: 362,
         rightDataIndex: 263,
     },
     {
         name: `nose`,
-        emoji: `👃`,
-        leftDataIndex: 236,
-        rightDataIndex: 456,
+        leftDataIndex: 198,
+        rightDataIndex: 420,
     },
     {
         name: `mouth`,
-        emoji: `👄`,
         leftDataIndex: 61,
         rightDataIndex: 291,
         upDataIndex: 13,
@@ -65,6 +62,8 @@ let face = [
  * Description of preload
 */
 function preload() {
+    //nose image
+    noseImg = loadImage('assets/images/nose.png');
     //eye images
     eyeLeftImg = loadImage('assets/images/eyeLeft.png');
     eyeRightImg = loadImage('assets/images/eyeRight.png');
@@ -73,7 +72,6 @@ function preload() {
     mouthMidImg = loadImage('assets/images/mouthMid.png');
     mouthOpenImg = loadImage('assets/images/mouthOpen.png');
 }
-
 
 /**
 Create the canvas, start the webcam, start up Facemesh
@@ -149,23 +147,51 @@ function detecting() {
             xDiff = data[feature.leftDataIndex][0] - data[feature.rightDataIndex][0];
             yDiff = data[feature.leftDataIndex][1] - data[feature.rightDataIndex][1];
             angle = (Math.atan2(yDiff, xDiff) * 180 / Math.PI);
+            let wideness;
             switch (feature.name) {
                 case "mouth":
                     push();
                     imageMode(CENTER);
                     translate(x, y);
                     rotate(angle - 180);
-                    let wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
+                    wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
                     if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.3) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
                         console.log(`mouthOpen`);
-                        image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3)
+                        image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3);
                     } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.1) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
                         console.log(`mouthMid`);
-                        image(mouthMidImg, 0, 0, wideness * 2, wideness * 2)
+                        image(mouthMidImg, 0, 0, wideness * 2, wideness * 2);
                     } else {
                         console.log(`mouthClosed`);
-                        image(mouthClosedImg, 0, 0, wideness * 2, wideness)
+                        image(mouthClosedImg, 0, 0, wideness * 2, wideness);
                     }
+                    pop();
+                    break;
+                case "left eye":
+                    push();
+                    wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
+                    translate(x, y);
+                    imageMode(CENTER);
+                    rotate(angle - 180);
+                    image(eyeLeftImg, 0, 0, wideness * 2, wideness);
+                    pop();
+                    break;
+                case "right eye":
+                    push();
+                    wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
+                    translate(x, y);
+                    imageMode(CENTER);
+                    rotate(angle - 180);
+                    image(eyeRightImg, 0, 0, wideness * 2, wideness)
+                    pop();
+                    break;
+                case "nose":
+                    push();
+                    wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
+                    translate(x, y);
+                    imageMode(CENTER);
+                    rotate(angle - 180);
+                    image(noseImg, 0, 0, wideness * 3, wideness * 3);
                     pop();
                     break;
                 default:
