@@ -17,6 +17,9 @@ let facemesh;
 let video;
 // To store the current results set
 let results = [];
+let angle;
+let xDiff;
+let yDiff;
 
 // Just to track what state the program is in
 const STATE = {
@@ -44,14 +47,14 @@ let face = [
     {
         name: `nose`,
         emoji: `👃`,
-        leftDataIndex: 195,
-        rightDataIndex: 195,
+        leftDataIndex: 236,
+        rightDataIndex: 456,
     },
     {
         name: `mouth`,
         emoji: `👄`,
-        leftDataIndex: 14,
-        rightDataIndex: 14,
+        leftDataIndex: 61,
+        rightDataIndex: 291,
     },
 ];
 
@@ -67,7 +70,13 @@ function preload() {
 Create the canvas, start the webcam, start up Facemesh
 */
 function setup() {
-    createCanvas(640, 480);
+    width = windowWidth * 0.6;
+    height = width * 0.75;
+    createCanvas(width, height);
+    textAlign(CENTER, CENTER);
+    textSize(48);
+    fill(255);
+    angleMode(DEGREES);
 
     // Set up and start the webcam
     video = createCapture(VIDEO);
@@ -107,12 +116,7 @@ Tells the user we're getting started with loading Facemesh
 */
 function startup() {
     background(0);
-
-    push();
-    fill(255);
-    textAlign(CENTER, CENTER);
-    text(`Loading Facemesh...`, width / 2, height / 2);
-    pop();
+    text(`Loading...`, width / 2, height / 2);
 }
 
 /**
@@ -122,11 +126,7 @@ function detecting() {
     background(200, 127, 120);
 
     // Show the webcam
-    image(video, 0, 0);
-
-    // Default text settings
-    textSize(48);
-    textAlign(CENTER, CENTER);
+    image(video, 0, 0, width, height);
     // Go through all the current results
     for (let result of results) {
         // Go through each of the possible features we're mapping
@@ -136,10 +136,18 @@ function detecting() {
             const data = result.scaledMesh;
             // Calculate x as halfway between the left and right coordinates
             // of that feature
-            const x = halfwayBetween(data[feature.leftDataIndex][0], data[feature.rightDataIndex][0]);
-            const y = halfwayBetween(data[feature.leftDataIndex][1], data[feature.rightDataIndex][1]);
+            const x = (halfwayBetween(data[feature.leftDataIndex][0], data[feature.rightDataIndex][0])) * (width / 640);
+            const y = (halfwayBetween(data[feature.leftDataIndex][1], data[feature.rightDataIndex][1])) * (height / 480);
+            //Calculate and get feature angle
+            xDiff = data[feature.leftDataIndex][0] - data[feature.rightDataIndex][0];
+            yDiff = data[feature.leftDataIndex][1] - data[feature.rightDataIndex][1];
+            angle = (Math.atan2(yDiff, xDiff) * 180 / Math.PI);
+            push();
+            translate(x, y);
+            rotate(angle - 180);
             // Display the emoji there
-            text(feature.emoji, x, y);
+            text(feature.emoji, 0, 0);
+            pop();
         }
     }
 }
