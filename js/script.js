@@ -151,10 +151,10 @@ function detecting() {
                     translate(x, y);
                     rotate(angle - 180);
                     let wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
-                    if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.35) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
+                    if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.3) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
                         console.log(`mouthOpen`);
                         image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3)
-                    } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.15) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
+                    } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.1) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
                         console.log(`mouthMid`);
                         image(mouthMidImg, 0, 0, wideness * 2, wideness * 2)
                     } else {
@@ -176,22 +176,16 @@ function detecting() {
     }
 }
 
-/**
-Calculates the number halfway between a and b. Could also use lerp.
-*/
-function halfwayBetween(a, b) {
-    return a + (b - a) / 2;
-}
-
-/**
-Called by Facemesh when it sees a face, just stores the data in results
-so we can see it in detecting()
-*/
+/** Called by Facemesh when it sees a face, just stores the data in results
+so we can see it in detecting() */
 function handleFaceDetection(data) {
     if (data.length > 0) {
         results = data;
     }
 }
+
+/** Calculates the number halfway between a and b. Could also use lerp.*/
+const halfwayBetween = (a, b) => a + (b - a) / 2;
 
 /** returns the distance between two cartesian points */
 const distanceBetweenPoints = (x1, y1, x2, y2) => Math.abs((Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))));
