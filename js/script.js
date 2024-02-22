@@ -1,26 +1,23 @@
-/**
- * Title of Project
+/** Title of Project
  * Author Name
  * 
  * This is a template. You must fill in the title, author, 
- * and this description to match your project!
- */
+ * and this description to match your project!  */
 
 "use strict";
 //html
 let backgroundPos = 0;
 setInterval(moveBackground, 50);
-
 // Our face detector
 let facemesh;
 // Our webcam feed
 let video;
-// To store the current results set
+// Store the current results set and related data
 let results = [];
 let angle;
-let xDiff;
-let yDiff;
-// Just to track what state the program is in
+let xDiff, yDiff;
+let wideness;
+// Track what state the program is in
 const STATE = {
     STARTUP: `STARTUP`,
     DETECTING: `DETECTING`
@@ -33,34 +30,27 @@ let noseImg;
 // Our data for displaying the features and locating the correct
 // Facemesh data. We're using both a left and right point so we can
 // position features in the centerpoint
-let face = [
-    {
-        name: `left eye`,
-        leftDataIndex: 33,
-        rightDataIndex: 133,
-    },
-    {
-        name: `right eye`,
-        leftDataIndex: 362,
-        rightDataIndex: 263,
-    },
-    {
-        name: `nose`,
-        leftDataIndex: 198,
-        rightDataIndex: 420,
-    },
-    {
-        name: `mouth`,
-        leftDataIndex: 61,
-        rightDataIndex: 291,
-        upDataIndex: 13,
-        downDataIndex: 14
-    },
-];
+let face = [{
+    name: `left eye`,
+    leftDataIndex: 33,
+    rightDataIndex: 133,
+}, {
+    name: `right eye`,
+    leftDataIndex: 362,
+    rightDataIndex: 263,
+}, {
+    name: `nose`,
+    leftDataIndex: 198,
+    rightDataIndex: 420,
+}, {
+    name: `mouth`,
+    leftDataIndex: 61,
+    rightDataIndex: 291,
+    upDataIndex: 13,
+    downDataIndex: 14
+}];
 
-/**
- * Description of preload
-*/
+/** Description of preload */
 function preload() {
     //nose image
     noseImg = loadImage('assets/images/nose.png');
@@ -73,9 +63,7 @@ function preload() {
     mouthOpenImg = loadImage('assets/images/mouthOpen.png');
 }
 
-/**
-Create the canvas, start the webcam, start up Facemesh
-*/
+/** setup the canvas, initial settings, then start the webcam and Facemesh */
 function setup() {
     //canvas & default settings setup
     width = windowWidth * 0.6;
@@ -93,9 +81,7 @@ function setup() {
     facemesh = ml5.facemesh(video, modelLoaded);
 }
 
-/**
-Called when Facemesh is ready to start detection
-*/
+/** Called when Facemesh is ready to start detection */
 function modelLoaded() {
     // Now we know we're ready we can switch states
     state = STATE.DETECTING;
@@ -103,9 +89,7 @@ function modelLoaded() {
     facemesh.on('face', handleFaceDetection);
 }
 
-/**
-Displays based on the current state
-*/
+/** Displays based on the current state */
 function draw() {
     switch (state) {
         case STATE.STARTUP:
@@ -117,17 +101,13 @@ function draw() {
     }
 }
 
-/**
-Tells the user we're getting started with loading Facemesh
-*/
+/** Tells the user we're getting started with loading Facemesh */
 function startup() {
     background(0);
     text(`Loading...`, width / 2, height / 2);
 }
 
-/**
-Displays the video feed and the emoji mapped on top of it
-*/
+/** Displays the video feed and the emoji mapped on top of it */
 function detecting() {
     background(200, 127, 120);
     // Show the webcam
@@ -136,70 +116,45 @@ function detecting() {
     for (let result of results) {
         // Go through each of the possible features we're mapping
         for (let feature of face) {
-            // Get the scaled mesh data for the current result (the data that
-            // tells us where the features are located)
+            // Get the scaled mesh data for the current result (the data that tells us where the features are located)
             const data = result.scaledMesh;
-            // Calculate x as halfway between the left and right coordinates
-            // of that feature
+            // Calculate x as halfway between the left and right coordinates of that feature (scaled)
             const x = (halfwayBetween(data[feature.leftDataIndex][0], data[feature.rightDataIndex][0])) * (width / 640);
             const y = (halfwayBetween(data[feature.leftDataIndex][1], data[feature.rightDataIndex][1])) * (height / 480);
             //Calculate and get feature angle
             xDiff = data[feature.leftDataIndex][0] - data[feature.rightDataIndex][0];
             yDiff = data[feature.leftDataIndex][1] - data[feature.rightDataIndex][1];
             angle = (Math.atan2(yDiff, xDiff) * 180 / Math.PI);
-            let wideness;
+            wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
+            push();
+            imageMode(CENTER);
+            translate(x, y);
+            rotate(angle - 180);
             switch (feature.name) {
                 case "mouth":
-                    push();
-                    imageMode(CENTER);
-                    translate(x, y);
-                    rotate(angle - 180);
-                    wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
                     if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.3) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
-                        console.log(`mouthOpen`);
                         image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3);
                     } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.1) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
-                        console.log(`mouthMid`);
                         image(mouthMidImg, 0, 0, wideness * 2, wideness * 2);
                     } else {
-                        console.log(`mouthClosed`);
                         image(mouthClosedImg, 0, 0, wideness * 2, wideness);
                     }
                     pop();
                     break;
                 case "left eye":
-                    push();
-                    wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
-                    translate(x, y);
-                    imageMode(CENTER);
-                    rotate(angle - 180);
                     image(eyeLeftImg, 0, 0, wideness * 2, wideness);
                     pop();
                     break;
                 case "right eye":
-                    push();
-                    wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
-                    translate(x, y);
-                    imageMode(CENTER);
-                    rotate(angle - 180);
-                    image(eyeRightImg, 0, 0, wideness * 2, wideness)
+                    image(eyeRightImg, 0, 0, wideness * 2, wideness);
                     pop();
                     break;
                 case "nose":
-                    push();
-                    wideness = distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]);
-                    translate(x, y);
-                    imageMode(CENTER);
-                    rotate(angle - 180);
                     image(noseImg, 0, 0, wideness * 3, wideness * 3);
                     pop();
                     break;
                 default:
-                    push();
-                    translate(x, y);
-                    rotate(angle - 180);
-                    // Display the emoji there
-                    text(feature.emoji, 0, 0);
+                    console.log("feature not recognized");
                     pop();
                     break;
             }
@@ -207,8 +162,7 @@ function detecting() {
     }
 }
 
-/** Called by Facemesh when it sees a face, just stores the data in results
-so we can see it in detecting() */
+/** When Facemesh sees a face, stores the data in results to use in detecting() */
 function handleFaceDetection(data) {
     if (data.length > 0) {
         results = data;
