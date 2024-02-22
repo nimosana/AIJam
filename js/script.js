@@ -28,6 +28,7 @@ const STATE = {
 let state = STATE.STARTUP;
 //assets
 let mouthOpenImg, mouthMidImg, mouthClosedImg;
+let eyeLeftImg, eyeRightImg;
 // Our data for displaying the features and locating the correct
 // Facemesh data. We're using both a left and right point so we can
 // position features in the centerpoint
@@ -64,9 +65,13 @@ let face = [
  * Description of preload
 */
 function preload() {
-    mouthClosedImg = loadImage('assets/images/closedMouth.png');
-    mouthOpenImg = loadImage('assets/images/openMouth.png');
-    mouthMidImg = loadImage('assets/images/midMouth.png');
+    //eye images
+    eyeLeftImg = loadImage('assets/images/eyeLeft.png');
+    eyeRightImg = loadImage('assets/images/eyeRight.png');
+    //mouth images
+    mouthClosedImg = loadImage('assets/images/mouthClosed.png');
+    mouthMidImg = loadImage('assets/images/mouthMid.png');
+    mouthOpenImg = loadImage('assets/images/mouthOpen.png');
 }
 
 
