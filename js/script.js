@@ -14,6 +14,7 @@ let facemesh;
 let video;
 // Store the current results set and related data
 let results = [];
+let cookies = [];
 let angle;
 let xDiff, yDiff;
 let wideness;
@@ -27,6 +28,7 @@ let state = STATE.STARTUP;
 let mouthOpenImg, mouthMidImg, mouthClosedImg;
 let eyeLeftImg, eyeRightImg;
 let noseImg;
+let cookieImg;
 // Our data for displaying the features and locating the correct
 // Facemesh data. We're using both a left and right point so we can
 // position features in the centerpoint
@@ -56,6 +58,7 @@ let face = [{
 
 /** Description of preload */
 function preload() {
+    cookieImg = loadImage('assets/images/cookie.png');
     //nose image
     noseImg = loadImage('assets/images/nose.png');
     //eye images
@@ -102,6 +105,7 @@ function draw() {
             break;
         case STATE.DETECTING:
             detecting();
+            randomlySpawnCookies(0.02, 50);
             break;
     }
 }
@@ -140,9 +144,11 @@ function detecting() {
                     if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.3) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
                         image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3);
                         // ellipse(0, 0, wideness * 2);
+                        cookieEating(x, y, wideness * 2);
                     } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.1) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
                         image(mouthMidImg, 0, 0, wideness * 2, wideness * 2);
                         // ellipse(0, 0, wideness * 2);
+                        cookieEating(x, y, wideness * 2);
                     } else {
                         image(mouthClosedImg, 0, 0, wideness * 2, wideness);
                     }
@@ -184,6 +190,36 @@ function drawEyeWithHue(eye) {
     }
     tint(eye.hue, 50, 100);
     image(eye.img, 0, 0, wideness * 2, wideness);
+}
+
+function randomlySpawnCookies(odds, size) {
+    if (cookies.length < 10 && random(0, 1) <= odds) {
+        let x = random(0 + size, width - size);
+        let y = -size;
+        cookies.push({
+            x: x,
+            y: y,
+            size: size
+        });
+    }
+    for (let i = cookies.length - 1; i >= 0; i--) {
+        cookies[i].y++;
+        push();
+        imageMode(CENTER);
+        image(cookieImg, cookies[i].x, cookies[i].y, cookies[i].size * 2, cookies[i].size * 2);
+        pop();
+        if (cookies[i].y > height + cookies[i].size) {
+            cookies.splice(i, 1);
+        }
+    }
+}
+
+function cookieEating(mouthX, mouthY, wideness) {
+    for (let i = cookies.length - 1; i >= 0; i--) {
+        if (dist(mouthX, mouthY, cookies[i].x, cookies[i].y) < (wideness / 2 + cookies[i].size / 2)) {
+            cookies.splice(i, 1);
+        }
+    }
 }
 
 /** Calculates the number halfway between a and b. Could also use lerp.*/
