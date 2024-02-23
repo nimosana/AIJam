@@ -104,8 +104,12 @@ function draw() {
             startup();
             break;
         case STATE.DETECTING:
+            push();
+            translate(width, 0);
+            scale(-1, 1);
             detecting();
             randomlySpawnCookies(0.02, 50);
+            pop();
             break;
     }
 }
@@ -199,11 +203,13 @@ function randomlySpawnCookies(odds, size) {
         cookies.push({
             x: x,
             y: y,
+            vy: 0,
             size: size
         });
     }
     for (let i = cookies.length - 1; i >= 0; i--) {
-        cookies[i].y++;
+        cookies[i].vy += 0.5;
+        cookies[i].y = cookies[i].y + cookies[i].vy;
         push();
         imageMode(CENTER);
         image(cookieImg, cookies[i].x, cookies[i].y, cookies[i].size * 2, cookies[i].size * 2);
