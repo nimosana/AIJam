@@ -34,10 +34,14 @@ let face = [{
     name: `left eye`,
     leftDataIndex: 33,
     rightDataIndex: 133,
+    hue: -1,
+    img: undefined
 }, {
     name: `right eye`,
     leftDataIndex: 362,
     rightDataIndex: 263,
+    hue: 49,
+    img: undefined
 }, {
     name: `nose`,
     leftDataIndex: 198,
@@ -47,7 +51,7 @@ let face = [{
     leftDataIndex: 61,
     rightDataIndex: 291,
     upDataIndex: 13,
-    downDataIndex: 14
+    downDataIndex: 14,
 }];
 
 /** Description of preload */
@@ -55,8 +59,8 @@ function preload() {
     //nose image
     noseImg = loadImage('assets/images/nose.png');
     //eye images
-    eyeLeftImg = loadImage('assets/images/eyeLeft.png');
-    eyeRightImg = loadImage('assets/images/eyeRight.png');
+    face[0].img = loadImage('assets/images/eyeLeft.png');
+    face[1].img = loadImage('assets/images/eyeRight.png');
     //mouth images
     mouthClosedImg = loadImage('assets/images/mouthClosed.png');
     mouthMidImg = loadImage('assets/images/mouthMid.png');
@@ -72,6 +76,7 @@ function setup() {
     textAlign(CENTER, CENTER);
     textSize(48);
     fill(255);
+    colorMode(HSB, 100);
     angleMode(DEGREES);
     // Set up and start the webcam
     video = createCapture(VIDEO);
@@ -134,19 +139,21 @@ function detecting() {
                 case "mouth":
                     if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.3) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
                         image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3);
+                        // ellipse(0, 0, wideness * 2);
                     } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.1) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
                         image(mouthMidImg, 0, 0, wideness * 2, wideness * 2);
+                        // ellipse(0, 0, wideness * 2);
                     } else {
                         image(mouthClosedImg, 0, 0, wideness * 2, wideness);
                     }
                     pop();
                     break;
                 case "left eye":
-                    image(eyeLeftImg, 0, 0, wideness * 2, wideness);
+                    drawEyeWithHue(feature);
                     pop();
                     break;
                 case "right eye":
-                    image(eyeRightImg, 0, 0, wideness * 2, wideness);
+                    drawEyeWithHue(feature);
                     pop();
                     break;
                 case "nose":
@@ -167,6 +174,16 @@ function handleFaceDetection(data) {
     if (data.length > 0) {
         results = data;
     }
+}
+
+/** continuously shifts the hue of the eye and draws it */
+function drawEyeWithHue(eye) {
+    eye.hue++;
+    if (eye.hue > 100) {
+        eye.hue = 0;
+    }
+    tint(eye.hue, 50, 100);
+    image(eye.img, 0, 0, wideness * 2, wideness);
 }
 
 /** Calculates the number halfway between a and b. Could also use lerp.*/
