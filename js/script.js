@@ -15,6 +15,7 @@ let video;
 // Store the current results set and related data
 let results = [];
 let cookies = [];
+let cookieCrunch;
 let angle;
 let xDiff, yDiff;
 let wideness;
@@ -58,6 +59,7 @@ let face = [{
 
 /** Description of preload */
 function preload() {
+    cookieCrunch = loadSound('assets/sounds/crunch.mp3');
     cookieImg = loadImage('assets/images/cookie.png');
     //nose image
     noseImg = loadImage('assets/images/nose.png');
@@ -148,21 +150,7 @@ function detecting() {
             rotate(angle - 180);
             switch (feature.name) {
                 case "mouth":
-                    if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.4) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
-                        image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3);
-                        cookieEating(x, y, wideness * 2);
-                    } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.25) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
-                        image(mouthMidImg2, 0, 0, wideness * 2, wideness * 2);
-                        cookieEating(x, y, wideness * 2);
-                    } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.17) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
-                        image(mouthMidImg1, 0, 0, wideness * 2, wideness * 1.75);
-                    } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.08) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
-                        image(mouthClosedImg3, 0, 0, wideness * 2, wideness * 1.5);
-                    } else if ((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.04) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) {
-                        image(mouthClosedImg2, 0, 0, wideness * 2, wideness);
-                    } else {
-                        image(mouthClosedImg1, 0, 0, wideness * 2, wideness);
-                    }
+                    mouthMovements(data, x, y, feature, wideness);
                     pop();
                     break;
                 case "left eye":
@@ -190,6 +178,51 @@ function detecting() {
 function handleFaceDetection(data) {
     if (data.length > 0) {
         results = data;
+    }
+}
+
+function mouthMovements(data, x, y, feature, wideness) {
+    if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.4) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] > data[feature.rightDataIndex][1]) {
+        image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3);
+        cookieEating(x, y, wideness * 2);
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.25) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] < data[feature.rightDataIndex][1]) {
+        push();
+        scale(-1, 1);
+        image(mouthOpenImg, 0, 0, wideness * 2.2, wideness * 3);
+        cookieEating(x, y, wideness * 2);
+        pop();
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.25) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] > data[feature.rightDataIndex][1]) {
+        image(mouthMidImg2, 0, 0, wideness * 2, wideness * 2);
+        cookieEating(x, y, wideness * 2);
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.017) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] < data[feature.rightDataIndex][1]) {
+        push();
+        scale(-1, 1);
+        image(mouthMidImg2, 0, 0, wideness * 2, wideness * 2);
+        pop();
+        cookieEating(x, y, wideness * 2);
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.17) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] > data[feature.rightDataIndex][1]) {
+        image(mouthMidImg1, 0, 0, wideness * 2, wideness * 1.75);
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.017) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] < data[feature.rightDataIndex][1]) {
+        push();
+        scale(-1, 1);
+        image(mouthMidImg1, 0, 0, wideness * 2, wideness * 1.75);
+        pop();
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.08) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] > data[feature.rightDataIndex][1]) {
+        image(mouthClosedImg3, 0, 0, wideness * 2, wideness * 1.5);
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.08) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] < data[feature.rightDataIndex][1]) {
+        push();
+        scale(-1, 1);
+        image(mouthClosedImg3, 0, 0, wideness * 2, wideness * 1.5);
+        pop();
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.04) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] > data[feature.rightDataIndex][1]) {
+        image(mouthClosedImg2, 0, 0, wideness * 2, wideness);
+    } else if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.04) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] < data[feature.rightDataIndex][1]) {
+        push();
+        scale(-1, 1);
+        image(mouthClosedImg2, 0, 0, wideness * 2, wideness);
+        pop();
+    } else {
+        image(mouthClosedImg1, 0, 0, wideness * 2, wideness);
     }
 }
 
@@ -231,6 +264,7 @@ function cookieEating(mouthX, mouthY, wideness) {
     for (let i = cookies.length - 1; i >= 0; i--) {
         if (dist(mouthX, mouthY, cookies[i].x, cookies[i].y) < (wideness / 2 + cookies[i].size / 2)) {
             cookies.splice(i, 1);
+            cookieCrunch.play();
         }
     }
 }
