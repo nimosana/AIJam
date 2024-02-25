@@ -9,6 +9,7 @@ class PlaylistPlayer {
         this.playNext = this.playNext.bind(this);
         this.pausePlaylist = this.pausePlaylist.bind(this);
         this.resumePlaylist = this.resumePlaylist.bind(this);
+        this.nextSong = this.nextSong.bind(this);
     }
 
     initiate() {
@@ -57,6 +58,13 @@ class PlaylistPlayer {
             console.log(`resumed`)
             this.currentlyPlaying.play();
             this.playing = true;
+        }
+    }
+
+    nextSong() {
+        if (this.playing) {
+            console.log(`forceStop`)
+            this.currentlyPlaying.stop();
         }
     }
 }
