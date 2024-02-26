@@ -2,9 +2,13 @@
  * @author Nicolas Morales-Sanabria
  * Allows the creation of playlist players, these players allow to load lists of songs,
  * play them in random order without repetition, and loop the lists indefinitely.
- * The playlists can be paused, resumed, restarted, etc. volumes for each playlist 
+ * The playlists can be paused, resumed, restarted, etc. and volumes for each playlist 
  * can be controlled independently.
- * Uses p5.sound to work with .mp3, .wav, .ogg audio files */
+ * Uses p5.sound to work with .mp3, .wav, .ogg audio files 
+ * 
+ * NOTE: This class is unused, I began with this file and created p5.playlistPlayer.js
+ * to use as a library extending p5.
+ * */
 class PlaylistPlayer {
 
     /** Allows to instance playlist players
