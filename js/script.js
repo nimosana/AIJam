@@ -32,8 +32,8 @@ let noseImg;
 let cookieImg;
 let cookieCrunch;
 //music
-let music;
-let playlist = [];
+let playlist;
+let musicPlayer;
 // Our data for displaying the features and locating the correct
 // Facemesh data. We're using both a left and right point so we can
 // position features in the centerpoint
@@ -61,7 +61,8 @@ let face = [{
     downDataIndex: 14,
 }];
 
-/** Description of preload */
+/** Loads necessary assets, ie. Images and sounds used. 
+ * prepares the playlist for the PlaylistPlayer*/
 function preload() {
     //cookie assets
     cookieCrunch = loadSound('assets/sounds/crunch.mp3');
@@ -80,7 +81,6 @@ function preload() {
     mouthMidImg3 = loadImage('assets/images/mouthMid3.png');
     mouthOpenImg1 = loadImage('assets/images/mouthOpen1.png');
     mouthOpenImg2 = loadImage('assets/images/mouthOpen2.png');
-
     //playlist for the karaoke
     playlist = [{
         sound: loadSound('assets/sounds/Eagles_Hotel-California.mp3'),
@@ -124,7 +124,7 @@ function setup() {
     // Start up Facemesh
     facemesh = ml5.facemesh(video, modelLoaded);
     //create the karaoke playlist
-    music = new PlaylistPlayer(`karaoke`, playlist);
+    musicPlayer = new PlaylistPlayer(`karaoke`, playlist);
 }
 
 /** Called when Facemesh is ready to start detection */
@@ -133,10 +133,10 @@ function modelLoaded() {
     state = STATE.DETECTING;
     // What to do 
     facemesh.on('face', handleFaceDetection);
-    music.startPlaylist();
+    musicPlayer.startPlaylist();
 }
 
-/** Displays based on the current state */
+/** Displays/calculates based on the current state */
 function draw() {
     cooldown++;
     switch (state) {
@@ -148,31 +148,12 @@ function draw() {
             translate(width, 0);
             scale(-1, 1);
             detecting();
-            randomlySpawnCookies(0.03, 50);
+            spawnAndMoveCookies(0.03, random(width * 0.01, width * 0.06));
             pop();
             displayKaraokeText();
             break;
     }
-    //playlist key controls
-    if (keyIsDown(81)) {
-        music.pausePlaylist();
-    } else if (keyIsDown(87)) {
-        music.resumePlaylist();
-    } else if (keyIsDown(69) && cooldown > 30) {
-        cooldown = 0;
-        music.nextSound();
-    } else if (keyIsDown(82)) {
-        music.stopPlaylist();
-    } else if (keyIsDown(84)) {
-        music.startPlaylist();
-    } //playlist volume key controls
-    if (keyIsDown(61)) {
-        music.volumePlaylist(music.volume += 0.02);
-    } else if (keyIsDown(173)) {
-        music.volumePlaylist(music.volume -= 0.02);
-    }
-
-
+    playlistKeyControls();
 }
 
 /** Tells the user we're getting started with loading Facemesh */
@@ -181,7 +162,7 @@ function startup() {
     text(`Loading...`, width / 2, height / 2);
 }
 
-/** Displays the video feed and the emoji mapped on top of it */
+/** Displays the video feed and the images on any facemesh detected faces */
 function detecting() {
     background(200, 127, 120);
     // Show the webcam
@@ -237,6 +218,13 @@ function handleFaceDetection(data) {
     }
 }
 
+/** Displays different images of the mouth depending on the ratio of mouth width/opening
+ * (how wide it is open). Also checks for cookie eating if mouth's open enough
+ * @param data facemesh data
+ * @param x center X coord of the mouth
+ * @param y center Y coord of the mouth
+ * @param feature feature (in context mapped features of the detecting() array)
+ * @param wideness width from side to side of the mouth */
 function mouthMovements(data, x, y, feature, wideness) {
     if (((distanceBetweenPoints(data[feature.leftDataIndex][0], data[feature.leftDataIndex][1], data[feature.rightDataIndex][0], data[feature.rightDataIndex][1]) * 0.5) < (distanceBetweenPoints(data[feature.upDataIndex][0], data[feature.upDataIndex][1], data[feature.downDataIndex][0], data[feature.downDataIndex][1]))) && data[feature.leftDataIndex][1] > data[feature.rightDataIndex][1]) {
         image(mouthOpenImg2, 0, 0, wideness * 2.3, wideness * 3);
@@ -300,17 +288,18 @@ function mouthMovements(data, x, y, feature, wideness) {
     }
 }
 
+/** displays text for playing song info & controls for the musicPlayer */
 function displayKaraokeText() {
     push();
-    fill(Math.random() * 100, Math.random() * 100, 100);
+    fill(random(0, 100), random(0, 100), 100);
     textAlign(LEFT, TOP);
     text(`KARAOKE TIME!!1!`, 0, 0);
     textAlign(RIGHT, TOP)
     textSize(width * 0.025);
     fill(100, 0, 100);
-    text(`Playing: ${music.currentlyPlaying.name}
-    Artist: ${music.currentlyPlaying.artist}
-    Volume: ${music.volume}, controls: + -
+    text(`Playing: ${musicPlayer.currentlyPlaying.name}
+    Artist: ${musicPlayer.currentlyPlaying.artist}
+    Volume: ${musicPlayer.volume}, controls: + -
     Pause: Q
     Resume: W
     Skip: E
@@ -319,7 +308,8 @@ function displayKaraokeText() {
     pop();
 }
 
-/** continuously shifts the hue of the eye and draws it */
+/** continuously shifts the hue of the eye and draws it 
+ * @param eye the eye to draw */
 function drawEyeWithHue(eye) {
     eye.hue++;
     if (eye.hue > 100) {
@@ -329,7 +319,13 @@ function drawEyeWithHue(eye) {
     image(eye.img, 0, 0, wideness * 2, wideness);
 }
 
-function randomlySpawnCookies(odds, size) {
+/** Spawns and makes cookies fall, spawn rates and cookie sizes are customizable. 
+ * The cookie will fall from the top of the screen and be deleted when it reaches
+ * the bottom.
+ * @param odds % chance of spawning cookies 
+ * @param size cookie size (for creation) */
+function spawnAndMoveCookies(odds, size) {
+    //spawn cookie
     if (cookies.length < 10 && random(0, 1) <= odds) {
         let x = random(0 + size, width - size);
         let y = -size;
@@ -340,6 +336,7 @@ function randomlySpawnCookies(odds, size) {
             size: size
         });
     }
+    //move the cookies
     for (let i = cookies.length - 1; i >= 0; i--) {
         cookies[i].vy += 0.5;
         cookies[i].y = cookies[i].y + cookies[i].vy;
@@ -348,17 +345,43 @@ function randomlySpawnCookies(odds, size) {
         image(cookieImg, cookies[i].x, cookies[i].y, cookies[i].size * 2, cookies[i].size * 2);
         pop();
         if (cookies[i].y > height + cookies[i].size) {
-            cookies.splice(i, 1);
+            cookies.splice(i, 1); //delete if reached the bottom
         }
     }
 }
 
+/** Checks contact between mouth and cookies, if true:
+ * makes a crunching sound and removes the cookie
+ * @param mouthX center X coordinate of the mouth
+ * @param mouthY center Y coordinate of the mouth
+ * @param wideness width of the mouth */
 function cookieEating(mouthX, mouthY, wideness) {
     for (let i = cookies.length - 1; i >= 0; i--) {
         if (dist(mouthX, mouthY, cookies[i].x, cookies[i].y) < (wideness / 2 + cookies[i].size / 2)) {
             cookies.splice(i, 1);
             cookieCrunch.play();
         }
+    }
+}
+
+/** allows control/usage of the different playlist functions */
+function playlistKeyControls() {
+    if (keyIsDown(81)) {
+        musicPlayer.pausePlaylist();
+    } else if (keyIsDown(87)) {
+        musicPlayer.resumePlaylist();
+    } else if (keyIsDown(69) && cooldown > 30) {
+        cooldown = 0;
+        musicPlayer.nextSound();
+    } else if (keyIsDown(82)) {
+        musicPlayer.stopPlaylist();
+    } else if (keyIsDown(84)) {
+        musicPlayer.startPlaylist();
+    } //playlist volume key controls
+    if (keyIsDown(61)) {
+        musicPlayer.volumePlaylist(musicPlayer.volume += 0.02);
+    } else if (keyIsDown(173)) {
+        musicPlayer.volumePlaylist(musicPlayer.volume -= 0.02);
     }
 }
 

@@ -35,8 +35,9 @@ class PlaylistPlayer {
                 this.playlist = this.fullPlaylist.slice();
             }
             let chosen = Math.floor(Math.random() * this.playlist.length);
+            this.currentlyPlaying = this.playlist[chosen];
             this.currentlyPlaying.sound.setVolume(this.volume);
-            this.playlist[chosen].sound.play();
+            this.currentlyPlaying.sound.play();
             this.currentlyPlaying = this.playlist[chosen];
             console.log(`${this.playlistName} playlist playing: ${this.currentlyPlaying.name} by ${this.currentlyPlaying.artist}`)
             this.currentlyPlaying.sound.onended(this.playNext);
