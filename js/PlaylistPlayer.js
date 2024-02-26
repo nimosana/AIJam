@@ -2,22 +2,28 @@ class PlaylistPlayer {
 
     constructor(playlistName, playlist) {
         this.playlistName = playlistName;
-        this.playlist = playlist;
         this.fullPlaylist = playlist.slice();
+        this.playlist = playlist;
+        this.volume = 1;
         this.playing = false;
+        this.playingNext = true;
         this.currentlyPlaying = null;
+        //binding
         this.playNext = this.playNext.bind(this);
-        this.pausePlaylist = this.pausePlaylist.bind(this);
-        this.resumePlaylist = this.resumePlaylist.bind(this);
-        this.nextSong = this.nextSong.bind(this);
     }
 
-    initiate() {
-        if (!this.playing && this.playlist.length > 0) {
+    startPlaylist() {
+        if (!this.playing) {
+            console.log(`starting: ${this.playlistName} playlist`)
+            if (this.playlist.length === 0) {
+                this.playlist = this.fullPlaylist.slice();
+            }
             let chosen = Math.floor(Math.random() * this.playlist.length);
-            this.currentlyPlaying = this.playlist[chosen]; // Update the currentlyPlaying variable
-            this.currentlyPlaying.play();
-            this.currentlyPlaying.onended(this.playNext);
+            this.currentlyPlaying = this.playlist[chosen];
+            this.currentlyPlaying.sound.setVolume(this.volume);
+            this.currentlyPlaying.sound.play();
+            console.log(`${this.playlistName} playlist playing: ${this.currentlyPlaying.name} by ${this.currentlyPlaying.artist}`)
+            this.currentlyPlaying.sound.onended(this.playNext);
             this.playlist.splice(chosen, 1);
             this.playing = true;
         }
@@ -25,46 +31,67 @@ class PlaylistPlayer {
 
     playNext() {
         if (this.playing) {
-            if (this.playlist.length > 0) {
-                let chosen = Math.floor(Math.random() * this.playlist.length);
-                this.playlist[chosen].play();
-                this.currentlyPlaying = this.playlist[chosen]; // Update the currentlyPlaying variable
-                this.currentlyPlaying.onended(this.playNext);
-                this.playlist.splice(chosen, 1);
-            } else {
+            if (this.playlist.length === 0) {
                 this.playlist = this.fullPlaylist.slice();
-
-                let chosen = Math.floor(Math.random() * this.playlist.length);
-                this.currentlyPlaying = this.playlist[chosen];
-                this.currentlyPlaying.play();
-                this.currentlyPlaying.onended(this.playNext);
-                this.playlist.splice(chosen, 1);
             }
+            let chosen = Math.floor(Math.random() * this.playlist.length);
+            this.currentlyPlaying.sound.setVolume(this.volume);
+            this.playlist[chosen].sound.play();
+            this.currentlyPlaying = this.playlist[chosen];
+            console.log(`${this.playlistName} playlist playing: ${this.currentlyPlaying.name} by ${this.currentlyPlaying.artist}`)
+            this.currentlyPlaying.sound.onended(this.playNext);
+            this.playlist.splice(chosen, 1);
         }
     }
 
     pausePlaylist() {
         if (this.playing) {
-            console.log(this.currentlyPlaying.isPlaying())
-            console.log(`paused`)
-            this.currentlyPlaying.pause();
-            console.log(this.currentlyPlaying.isPlaying())
+            console.log(this.currentlyPlaying.sound.isPlaying())
+            console.log(`${this.playlistName} playlist paused: ${this.currentlyPlaying.name} by ${this.currentlyPlaying.artist}`)
+            this.currentlyPlaying.sound.pause();
+            console.log(this.currentlyPlaying.sound.isPlaying())
             this.playing = false;
         }
     }
 
     resumePlaylist() {
         if (!this.playing) {
-            console.log(`resumed`)
-            this.currentlyPlaying.play();
+            console.log(`resumed`);
+            this.playingNext = true;
+            this.currentlyPlaying.sound.setVolume(this.volume);
+            this.currentlyPlaying.sound.play();
+            console.log(`${this.playlistName} playlist resumed: ${this.currentlyPlaying.name} by ${this.currentlyPlaying.artist}`)
             this.playing = true;
         }
     }
 
-    nextSong() {
+    nextSound() {
         if (this.playing) {
-            console.log(`forceStop`)
-            this.currentlyPlaying.stop();
+            console.log(`nextsound`);
+            this.currentlyPlaying.sound.stop();
+        }
+    }
+
+    stopPlaylist() {
+        if (this.playing) {
+            console.log(`stopping/resetting ${this.playlistName} playlist`);
+            this.playingNext = false;
+            this.playlist = this.fullPlaylist.splice();
+            this.currentlyPlaying.sound.stop();
+            this.playing = false;
+        }
+    }
+
+    volumePlaylist(vol) {
+        if (typeof vol === 'number') {
+            if (this.playing) {
+                vol = constrain(vol, 0, 1);
+                this.currentlyPlaying.sound.setVolume(vol);
+            }
+            this.volume = vol;
+            console.log(`${this.playlistName} playlist volume: ${this.volume}`);
+        } else {
+            console.log(`playlist volume error: not a number`);
         }
     }
 }

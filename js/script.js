@@ -24,6 +24,7 @@ const STATE = {
     STARTUP: `STARTUP`,
     DETECTING: `DETECTING`
 };
+let cooldown = 0;
 let state = STATE.STARTUP;
 //assets
 let mouthClosedImg1, mouthClosedImg2, mouthClosedImg3, mouthMidImg1, mouthMidImg2, mouthMidImg3, mouthOpenImg1, mouthOpenImg2;
@@ -80,11 +81,11 @@ function preload() {
     mouthOpenImg2 = loadImage('assets/images/mouthOpen2.png');
 
     //playlist
-    playlist.push(loadSound('assets/sounds/Eagles_Hotel-California.mp3'));
-    playlist.push(loadSound('assets/sounds/Queen_Bohemian-Rhapsody.mp3'));
-    playlist.push(loadSound('assets/sounds/Gloria-Gaynor_I-Will-Survive.mp3'));
-    playlist.push(loadSound('assets/sounds/Bon-Jovi_Livin-On-A-Prayer.mp3'));
-    playlist.push(loadSound('assets/sounds/Oasis_Wonderwall.mp3'));
+    playlist.push({ sound: loadSound('assets/sounds/Eagles_Hotel-California.mp3'), name: `Hotel California`, artist: `Eagles` });
+    playlist.push({ sound: loadSound('assets/sounds/Queen_Bohemian-Rhapsody.mp3'), name: `Bohemian Rhapsody`, artist: `Queen` });
+    playlist.push({ sound: loadSound('assets/sounds/Gloria-Gaynor_I-Will-Survive.mp3'), name: `I will Survive`, artist: `Gloria Gaynor` });
+    playlist.push({ sound: loadSound('assets/sounds/Bon-Jovi_Livin-On-A-Prayer.mp3'), name: `Livin' on a Prayer`, artist: `Bon Jovi` });
+    playlist.push({ sound: loadSound('assets/sounds/Oasis_Wonderwall.mp3'), name: `Wonderwall`, artist: `Oasis` });
 }
 
 /** setup the canvas, initial settings, then start the webcam and Facemesh */
@@ -104,7 +105,7 @@ function setup() {
     video.hide();
     // Start up Facemesh
     music = new PlaylistPlayer(`music`, playlist);
-    music.initiate();
+    // music.startPlaylist();
     facemesh = ml5.facemesh(video, modelLoaded);
 }
 
@@ -114,11 +115,12 @@ function modelLoaded() {
     state = STATE.DETECTING;
     // What to do 
     facemesh.on('face', handleFaceDetection);
-    music.initiate();
+    music.startPlaylist();
 }
 
 /** Displays based on the current state */
 function draw() {
+    cooldown++;
     switch (state) {
         case STATE.STARTUP:
             startup();
@@ -141,10 +143,20 @@ function draw() {
         music.pausePlaylist();
     } else if (keyIsDown(87)) {
         music.resumePlaylist();
+    } else if (keyIsDown(69) && cooldown > 60) {
+        cooldown = 0;
+        music.nextSound();
+    } else if (keyIsDown(82)) {
+        music.stopPlaylist();
+    } else if (keyIsDown(84)) {
+        music.startPlaylist();
+    } else if (keyIsDown(61)) {
+        music.volumePlaylist(music.volume += 0.02);
+    } else if (keyIsDown(173)) {
+        music.volumePlaylist(music.volume -= 0.02);
     }
-    else if (keyIsDown(69)) {
-        music.nextSong();
-    }
+
+
 }
 
 /** Tells the user we're getting started with loading Facemesh */
@@ -324,5 +336,8 @@ const distanceBetweenPoints = (x1, y1, x2, y2) => Math.abs((Math.sqrt(Math.pow(x
 /** move the background of the html site */
 function moveBackground() {
     backgroundPos++;
+    if (backgroundPos > 680) {
+        backgroundPos = 1;
+    }
     document.getElementById("body").style.backgroundPosition = `${backgroundPos}px ${backgroundPos}px`;
 }
