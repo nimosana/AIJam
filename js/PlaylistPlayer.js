@@ -1,6 +1,21 @@
+/** PlaylistPlayer class
+ * @author Nicolas Morales-Sanabria
+ * Allows the creation of playlist players, these players allow to load lists of songs,
+ * play them in random order without repetition, and loop the lists indefinitely.
+ * The playlists can be paused, resumed, restarted, etc. volumes for each playlist 
+ * can be controlled independently.
+ * Uses p5.sound to work with .mp3, .wav, .ogg audio files */
 class PlaylistPlayer {
 
+    /** Allows to instance playlist players
+     * @param playlistName name for the playlist
+     * @param playlist arraylist with the songs
+     * every element of this array should contain 3 parameters:
+     * sound (mp3,wav,etc.)
+     * name (name of the song)
+     * artist (author of the song) */
     constructor(playlistName, playlist) {
+        //parameters of the playlist
         this.playlistName = playlistName;
         this.fullPlaylist = playlist.slice();
         this.playlist = playlist;
@@ -12,6 +27,9 @@ class PlaylistPlayer {
         this.playNext = this.playNext.bind(this);
     }
 
+    /** initial start for a playlist (or after a stop/reset).
+     * Songs in the playlist will play in random order, one after the other,
+     * without repeating, playlists will loop indefinitely thanks to playNext() */
     startPlaylist() {
         if (!this.playing) {
             console.log(`starting: ${this.playlistName} playlist`)
@@ -29,6 +47,8 @@ class PlaylistPlayer {
         }
     }
 
+    /** automatic callback when a song ends (to play the next song of the playlist)
+     *  if the playlist is empty (last song plays), restarts it. */
     playNext() {
         if (this.playing) {
             if (this.playlist.length === 0) {
@@ -45,6 +65,7 @@ class PlaylistPlayer {
         }
     }
 
+    /** pauses a playlist (pauses the sound) */
     pausePlaylist() {
         if (this.playing) {
             console.log(this.currentlyPlaying.sound.isPlaying())
@@ -55,6 +76,7 @@ class PlaylistPlayer {
         }
     }
 
+    /** resumes a paused playlist */
     resumePlaylist() {
         if (!this.playing) {
             console.log(`resumed`);
@@ -66,6 +88,7 @@ class PlaylistPlayer {
         }
     }
 
+    /** plays the next song (if the playlist is playing) */
     nextSound() {
         if (this.playing) {
             console.log(`nextsound`);
@@ -73,6 +96,7 @@ class PlaylistPlayer {
         }
     }
 
+    /** stops and resets the playlist to its initial state (full playlist) */
     stopPlaylist() {
         if (this.playing) {
             console.log(`stopping/resetting ${this.playlistName} playlist`);
@@ -83,6 +107,8 @@ class PlaylistPlayer {
         }
     }
 
+    /** Allows to change volume of a playlist (current + upcoming sounds)
+     * @param {*} vol desired volume (betwen 0 & 1) */
     volumePlaylist(vol) {
         if (typeof vol === 'number') {
             if (this.playing) {
