@@ -1,8 +1,30 @@
 /** Karaoke & cookies
  * @author Nicolas Morales-Sanabria
  * 
- * This is a template. You must fill in the title, author, 
- * and this description to match your project!  */
+ * Face features have been replaced for images, now drawn depending on the size/angle of 
+ * the face features for a more realistic effect. The mouth notably uses facemesh
+ * data to display different images depending on how open it is and where it's facing,
+ * to interpret and animate its movement. Eyes are rainbow, and cookies fall from the
+ * sky! A music playlist starts along with facemesh, to incite the user to karaoke and 
+ * play with the mouth effect, eating cookies along the way. The user can control the 
+ * music and the playlist for an enjoyable moment! 
+ * 
+ *  * For the project, I created a library (p5.playlistPlayer.js) which allows for the
+ * music and playlist controls featured. 
+ * 
+ * Attributions: This ml5.js project, is based on Pippin Barr's "Emoji Disguise" p5 project.
+ * Link to Emoji Disguise https://editor.p5js.org/pippinbarr/sketches/Q_enkvSTc.
+ * 
+ * This project uses songs from various artists:
+ * Hotel California, by Eagles,
+ * Bohemian Rhapsody by Queen,
+ * I Will survive by Gloria Gaynor,
+ * Livin' on a Prayer by Bon Jovi,
+ * Paint it, Black by The Rolling Stones,
+ * Wonderwall by Oasis 
+ * 
+ * Please note that their use in this project is for educational and non-commercial
+ * purposes, all credits and rights belong to their respective copyright holders. */
 "use strict";
 //html
 let backgroundPos = 0;
@@ -97,6 +119,10 @@ function preload() {
         sound: loadSound('assets/sounds/Bon-Jovi_Livin-On-A-Prayer.mp3'),
         name: `Livin' on a Prayer`,
         artist: `Bon Jovi`
+    }, {
+        sound: loadSound('assets/sounds/The-Rolling-Stones_Paint-It-Black.mp3'),
+        name: `Paint it, Black`,
+        artist: `The Rolling Stones`
     }, {
         sound: loadSound('assets/sounds/Oasis_Wonderwall.mp3'),
         name: `Wonderwall`,
