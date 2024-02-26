@@ -77,8 +77,8 @@ let face = [{
     rightDataIndex: 420,
 }, {
     name: `mouth`,
-    leftDataIndex: 61,
-    rightDataIndex: 291,
+    leftDataIndex: 57,
+    rightDataIndex: 287,
     upDataIndex: 13,
     downDataIndex: 14,
 }];
