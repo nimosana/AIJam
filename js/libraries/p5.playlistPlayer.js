@@ -11,7 +11,7 @@ if (typeof p5 !== 'undefined') {
         /** Allows to instance playlist players
          * @param playlistName name for the playlist
          * @param playlist arraylist with the songs
-         * every element of this array should contain 3 parameters:
+         * every element of the playlist array should contain 3 parameters:
          * sound (mp3,wav,etc.)
          * name (name of the song)
          * artist (author of the song) */
@@ -31,7 +31,7 @@ if (typeof p5 !== 'undefined') {
         /** initial start for a playlist (or after a stop/reset).
          * Songs in the playlist will play in random order, one after the other,
          * without repeating, playlists will loop indefinitely thanks to playNext() */
-        startPlaylist() {
+        playlistStart() {
             if (!this.playing) {
                 console.log(`starting: ${this.playlistName} playlist`)
                 if (this.playlist.length === 0) {
@@ -67,20 +67,17 @@ if (typeof p5 !== 'undefined') {
         }
 
         /** pauses a playlist (pauses the sound) */
-        pausePlaylist() {
+        playlistPause() {
             if (this.playing) {
-                console.log(this.currentlyPlaying.sound.isPlaying())
                 console.log(`${this.playlistName} playlist paused: ${this.currentlyPlaying.name} by ${this.currentlyPlaying.artist}`)
                 this.currentlyPlaying.sound.pause();
-                console.log(this.currentlyPlaying.sound.isPlaying())
                 this.playing = false;
             }
         }
 
         /** resumes a paused playlist */
-        resumePlaylist() {
+        playlistResume() {
             if (!this.playing) {
-                console.log(`resumed`);
                 this.playingNext = true;
                 this.currentlyPlaying.sound.setVolume(this.volume);
                 this.currentlyPlaying.sound.play();
@@ -90,7 +87,7 @@ if (typeof p5 !== 'undefined') {
         }
 
         /** plays the next song (if the playlist is playing) */
-        nextSound() {
+        playlistNext() {
             if (this.playing) {
                 console.log(`nextsound`);
                 this.currentlyPlaying.sound.stop();
@@ -98,7 +95,7 @@ if (typeof p5 !== 'undefined') {
         }
 
         /** stops and resets the playlist to its initial state (full playlist) */
-        stopPlaylist() {
+        playlistStop() {
             if (this.playing) {
                 console.log(`stopping/resetting ${this.playlistName} playlist`);
                 this.playingNext = false;
@@ -110,7 +107,7 @@ if (typeof p5 !== 'undefined') {
 
         /** Allows to change volume of a playlist (current + upcoming sounds)
          * @param {*} vol desired volume (betwen 0 & 1) */
-        volumePlaylist(vol) {
+        playlistVolume(vol) {
             if (typeof vol === 'number') {
                 if (this.playing) {
                     vol = parseFloat(constrain(vol, 0, 1).toFixed(2));

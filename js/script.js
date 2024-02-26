@@ -3,7 +3,6 @@
  * 
  * This is a template. You must fill in the title, author, 
  * and this description to match your project!  */
-
 "use strict";
 //html
 let backgroundPos = 0;
@@ -133,7 +132,7 @@ function modelLoaded() {
     state = STATE.DETECTING;
     // What to do 
     facemesh.on('face', handleFaceDetection);
-    musicPlayer.startPlaylist();
+    musicPlayer.playlistStart();
 }
 
 /** Displays/calculates based on the current state */
@@ -367,21 +366,21 @@ function cookieEating(mouthX, mouthY, wideness) {
 /** allows control/usage of the different playlist functions */
 function playlistKeyControls() {
     if (keyIsDown(81)) {
-        musicPlayer.pausePlaylist();
+        musicPlayer.playlistPause();
     } else if (keyIsDown(87)) {
-        musicPlayer.resumePlaylist();
+        musicPlayer.playlistResume();
     } else if (keyIsDown(69) && cooldown > 30) {
         cooldown = 0;
-        musicPlayer.nextSound();
+        musicPlayer.playlistNext();
     } else if (keyIsDown(82)) {
-        musicPlayer.stopPlaylist();
+        musicPlayer.playlistStop();
     } else if (keyIsDown(84)) {
-        musicPlayer.startPlaylist();
+        musicPlayer.playlistStart();
     } //playlist volume key controls
     if (keyIsDown(61)) {
-        musicPlayer.volumePlaylist(musicPlayer.volume += 0.02);
+        musicPlayer.playlistVolume(musicPlayer.volume += 0.02);
     } else if (keyIsDown(173)) {
-        musicPlayer.volumePlaylist(musicPlayer.volume -= 0.02);
+        musicPlayer.playlistVolume(musicPlayer.volume -= 0.02);
     }
 }
 
