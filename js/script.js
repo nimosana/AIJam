@@ -9,10 +9,11 @@
  * play with the mouth effect, eating cookies along the way. The user can control the 
  * music and the playlist for an enjoyable moment! 
  * 
- *  * For the project, I created a library (p5.playlistPlayer.js) which allows for the
+ * For the project, I created a library (p5.playlistPlayer.js) which allows for the
  * music and playlist controls featured. 
  * 
- * Attributions: This ml5.js project, is based on Pippin Barr's "Emoji Disguise" p5 project.
+ * Attributions:
+ * This ml5.js project, is based on Pippin Barr's "Emoji Disguise" p5 project.
  * Link to Emoji Disguise https://editor.p5js.org/pippinbarr/sketches/Q_enkvSTc.
  * 
  * This project uses songs from various artists:
@@ -318,7 +319,7 @@ function displayKaraokeText() {
     push();
     fill(random(0, 100), random(0, 100), 100);
     textAlign(LEFT, TOP);
-    text(`KARAOKE TIME!!1!`, 0, 0);
+    text(`KARAOKE TIME!!!`, 0, 0);
     textAlign(RIGHT, TOP)
     textSize(width * 0.025);
     fill(100, 0, 100);
