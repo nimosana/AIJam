@@ -15,7 +15,6 @@ let video;
 // Store the current results set and related data
 let results = [];
 let cookies = [];
-let cookieCrunch;
 let angle;
 let xDiff, yDiff;
 let wideness;
@@ -31,6 +30,7 @@ let mouthClosedImg1, mouthClosedImg2, mouthClosedImg3, mouthMidImg1, mouthMidImg
 let eyeLeftImg, eyeRightImg;
 let noseImg;
 let cookieImg;
+let cookieCrunch;
 //music
 let music;
 let playlist = [];
@@ -63,6 +63,7 @@ let face = [{
 
 /** Description of preload */
 function preload() {
+    //cookie assets
     cookieCrunch = loadSound('assets/sounds/crunch.mp3');
     cookieImg = loadImage('assets/images/cookie.png');
     //nose image
@@ -80,12 +81,28 @@ function preload() {
     mouthOpenImg1 = loadImage('assets/images/mouthOpen1.png');
     mouthOpenImg2 = loadImage('assets/images/mouthOpen2.png');
 
-    //playlist
-    playlist.push({ sound: loadSound('assets/sounds/Eagles_Hotel-California.mp3'), name: `Hotel California`, artist: `Eagles` });
-    playlist.push({ sound: loadSound('assets/sounds/Queen_Bohemian-Rhapsody.mp3'), name: `Bohemian Rhapsody`, artist: `Queen` });
-    playlist.push({ sound: loadSound('assets/sounds/Gloria-Gaynor_I-Will-Survive.mp3'), name: `I will Survive`, artist: `Gloria Gaynor` });
-    playlist.push({ sound: loadSound('assets/sounds/Bon-Jovi_Livin-On-A-Prayer.mp3'), name: `Livin' on a Prayer`, artist: `Bon Jovi` });
-    playlist.push({ sound: loadSound('assets/sounds/Oasis_Wonderwall.mp3'), name: `Wonderwall`, artist: `Oasis` });
+    //playlist for the karaoke
+    playlist = [{
+        sound: loadSound('assets/sounds/Eagles_Hotel-California.mp3'),
+        name: `Hotel California`,
+        artist: `Eagles`
+    }, {
+        sound: loadSound('assets/sounds/Queen_Bohemian-Rhapsody.mp3'),
+        name: `Bohemian Rhapsody`,
+        artist: `Queen`
+    }, {
+        sound: loadSound('assets/sounds/Gloria-Gaynor_I-Will-Survive.mp3'),
+        name: `I will Survive`,
+        artist: `Gloria Gaynor`
+    }, {
+        sound: loadSound('assets/sounds/Bon-Jovi_Livin-On-A-Prayer.mp3'),
+        name: `Livin' on a Prayer`,
+        artist: `Bon Jovi`
+    }, {
+        sound: loadSound('assets/sounds/Oasis_Wonderwall.mp3'),
+        name: `Wonderwall`,
+        artist: `Oasis`
+    }];
 }
 
 /** setup the canvas, initial settings, then start the webcam and Facemesh */
@@ -94,8 +111,9 @@ function setup() {
     width = windowWidth * 0.6;
     height = width * 0.75;
     createCanvas(width, height);
+    console.log(`width ${width}, height ${height}`);
     textAlign(CENTER, CENTER);
-    textSize(48);
+    textSize(width * 0.05);
     fill(255);
     colorMode(HSB, 100);
     angleMode(DEGREES);
@@ -104,9 +122,9 @@ function setup() {
     video.size(width, height);
     video.hide();
     // Start up Facemesh
-    music = new PlaylistPlayer(`music`, playlist);
-    // music.startPlaylist();
     facemesh = ml5.facemesh(video, modelLoaded);
+    //create the karaoke playlist
+    music = new PlaylistPlayer(`karaoke`, playlist);
 }
 
 /** Called when Facemesh is ready to start detection */
@@ -132,25 +150,23 @@ function draw() {
             detecting();
             randomlySpawnCookies(0.03, 50);
             pop();
-            push();
-            fill(Math.random() * 100, Math.random() * 100, 100);
-            textAlign(LEFT, TOP);
-            text(`KARAOKE TIME!!1!`, 0, 0);
-            pop();
+            displayKaraokeText();
             break;
     }
+    //playlist key controls
     if (keyIsDown(81)) {
         music.pausePlaylist();
     } else if (keyIsDown(87)) {
         music.resumePlaylist();
-    } else if (keyIsDown(69) && cooldown > 60) {
+    } else if (keyIsDown(69) && cooldown > 30) {
         cooldown = 0;
         music.nextSound();
     } else if (keyIsDown(82)) {
         music.stopPlaylist();
     } else if (keyIsDown(84)) {
         music.startPlaylist();
-    } else if (keyIsDown(61)) {
+    } //playlist volume key controls
+    if (keyIsDown(61)) {
         music.volumePlaylist(music.volume += 0.02);
     } else if (keyIsDown(173)) {
         music.volumePlaylist(music.volume -= 0.02);
@@ -282,6 +298,25 @@ function mouthMovements(data, x, y, feature, wideness) {
     } else {
         image(mouthClosedImg1, 0, 0, wideness * 2, wideness);
     }
+}
+
+function displayKaraokeText() {
+    push();
+    fill(Math.random() * 100, Math.random() * 100, 100);
+    textAlign(LEFT, TOP);
+    text(`KARAOKE TIME!!1!`, 0, 0);
+    textAlign(RIGHT, TOP)
+    textSize(width * 0.025);
+    fill(100, 0, 100);
+    text(`Playing: ${music.currentlyPlaying.name}
+    Artist: ${music.currentlyPlaying.artist}
+    Volume: ${music.volume}, controls: + -
+    Pause: Q
+    Resume: W
+    Skip: E
+    Stop/Reset: R
+    Start(after reset): T`, width, 0);
+    pop();
 }
 
 /** continuously shifts the hue of the eye and draws it */

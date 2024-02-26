@@ -85,13 +85,13 @@ class PlaylistPlayer {
     volumePlaylist(vol) {
         if (typeof vol === 'number') {
             if (this.playing) {
-                vol = constrain(vol, 0, 1);
+                vol = parseFloat(constrain(vol, 0, 1).toFixed(2));
                 this.currentlyPlaying.sound.setVolume(vol);
             }
             this.volume = vol;
             console.log(`${this.playlistName} playlist volume: ${this.volume}`);
         } else {
-            console.log(`playlist volume error: not a number`);
+            console.log(`${this.playlistName} playlist volume error: not a number`);
         }
     }
 }
