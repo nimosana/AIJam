@@ -404,9 +404,9 @@ function playlistKeyControls() {
     } else if (keyIsDown(84)) {
         musicPlayer.playlistStart();
     } //playlist volume key controls
-    if (keyIsDown(61)) {
+    if (keyIsDown(61) || keyIsDown(187)) {
         musicPlayer.playlistVolume(musicPlayer.volume += 0.02);
-    } else if (keyIsDown(173)) {
+    } else if (keyIsDown(173) || keyIsDown(189)) {
         musicPlayer.playlistVolume(musicPlayer.volume -= 0.02);
     }
 }
